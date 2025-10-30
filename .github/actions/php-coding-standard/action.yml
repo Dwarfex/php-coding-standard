@@ -1,0 +1,27 @@
+name: SomeCoding Coding Standard
+
+inputs:
+  COMPOSER_AUTH_TOKEN:
+    required: false
+  COMPOSER_WORK_DIR:
+    default: './'
+    required: false
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache@v4
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+    - name: composer auth
+      if: ${{ inputs.COMPOSER_AUTH_TOKEN }}
+      run: composer config --auth github-oauth.github.com ${{ inputs.COMPOSER_AUTH_TOKEN }}
+      shell: bash
+      working-directory: ${{ inputs.COMPOSER_WORK_DIR }}
+    - name: composer install
+      run: composer require global spaceemotion/php-coding-standard
+      shell: bash
+      working-directory: ${{ inputs.COMPOSER_WORK_DIR }}
